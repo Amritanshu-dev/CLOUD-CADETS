@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillNav Bharat | Premium Skill Intelligence</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff9933;
+            --secondary: #22c55e;
+            --ashoka: #6366f1;
+            --bg: #0f172a; 
+            --white: #ffffff;
+            --panel-bg: rgba(30, 41, 59, 0.6); 
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main); overflow-x: hidden; scroll-behavior: smooth; }
+
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, #0f172a 100%);
+            z-index: -1;
+        }
+
+        nav {
+            padding: 1rem 5%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 1000;
+        }
+        .logo { font-weight: 800; font-size: 1.4rem; color: var(--white); letter-spacing: -1px; cursor: pointer; }
+        .logo span { color: var(--primary); }
+
+        .nav-menu { display: none; gap: 1.5rem; list-style: none; }
+        .nav-menu.active { display: flex; }
+        .nav-link { color: var(--text-muted); text-decoration: none; font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 0.8rem; letter-spacing: 0.5px; text-transform: uppercase; }
+        .nav-link:hover, .nav-link.active { color: var(--primary); }
+
+        #heroPage { padding: 8rem 5% 15rem; text-align: center; background: radial-gradient(circle at top, rgba(99, 102, 241, 0.1) 0%, transparent 70%); }
+        #heroPage h1 { font-size: 3.2rem; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 1rem; color: #fff; }
+        #heroPage p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 3rem; font-weight: 300; }
+
+        .input-group { display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap; max-width: 1000px; margin: 0 auto; }
+        .custom-dropdown { position: relative; min-width: 280px; text-align: left; }
+        .dropdown-trigger { background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border); padding: 1rem 1.8rem; border-radius: 12px; color: var(--white); font-weight: 500; cursor: pointer; backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center; transition: 0.4s; font-size: 0.9rem; }
+        .custom-dropdown:hover .dropdown-trigger { background: rgba(255, 255, 255, 0.08); border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .dropdown-menu { position: absolute; top: 110%; left: 0; width: 100%; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(25px); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; opacity: 0; visibility: hidden; transform: translateY(10px); transition: 0.3s; z-index: 2000; max-height: 300px; overflow-y: auto; }
+        .custom-dropdown:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-item { padding: 10px 18px; color: var(--text-muted); cursor: pointer; transition: 0.2s; font-size: 0.85rem; }
+        .dropdown-item:hover { background: rgba(255, 153, 51, 0.1); color: var(--primary); }
+        .dropdown-label { padding: 10px 18px; font-size: 0.7rem; color: var(--primary); font-weight: 800; text-transform: uppercase; opacity: 0.6; }
+
+        .btn-primary { padding: 1rem 2.5rem; background: linear-gradient(135deg, var(--primary), #fb923c); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; box-shadow: 0 8px 15px rgba(251, 146, 60, 0.2); font-size: 0.9rem; }
+        .btn-primary:hover { transform: scale(1.03); filter: brightness(1.1); }
+
+        .page-content { display: none; padding: 4rem 12%; min-height: 80vh; animation: fadeIn 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .panel { background: var(--panel-bg); backdrop-filter: blur(30px); border-radius: 24px; padding: 2.5rem; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); }
+        h2 { font-size: 1.6rem; margin-bottom: 1.5rem; color: var(--primary); font-weight: 700; letter-spacing: -0.5px; }
+        .sub-text { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; font-weight: 400; }
+
+        .roadmap { margin-top: 3rem; position: relative; padding-left: 3rem; }
+        .roadmap::before { content: ''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--secondary) 0%, rgba(34, 197, 94, 0.1) 100%); }
+        .roadmap::after { content: ''; position: absolute; left: 10px; top: 0; width: 2px; height: 100px; background: #fff; box-shadow: 0 0 15px #fff; animation: moveLight 4s linear infinite; }
+        @keyframes moveLight { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+
+        .roadmap-step { position: relative; margin-bottom: 3.5rem; }
+        .roadmap-step::before { content: ''; position: absolute; left: calc(-3rem - 1px); top: 5px; width: 14px; height: 14px; background: var(--secondary); border-radius: 50%; z-index: 2; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); animation: pulseRipple 2s infinite; }
+        @keyframes pulseRipple { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+
+        .step-label { color: var(--secondary); font-weight: 800; font-size: 0.7rem; margin-bottom: 0.4rem; display: block; letter-spacing: 1px; }
+        .roadmap-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 1.2rem; border-radius: 12px; margin-top: 0.8rem; transition: 0.3s; }
+        .roadmap-card p { font-size: 0.85rem; line-height: 1.5; color: var(--text-muted); }
+        .roadmap-card h4 { font-size: 1rem; color: #fff; margin-bottom: 5px; }
+
+        .video-container { position: relative; width: 100%; padding-bottom: 56.25%; height: 0; margin-top: 1rem; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: #000; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        .course-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; }
+        .course-card { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; transition: 0.4s; }
+        .course-card h4 { font-size: 0.95rem; color: #fff; margin-bottom: 4px; }
+        .course-card p { font-size: 0.75rem; color: var(--text-muted); }
+
+        footer { margin-top: 4rem; padding: 3rem 5%; background: rgba(10, 15, 28, 0.9); border-top: 1px solid var(--border); text-align: center; }
+        .footer-content h4 { color: var(--primary); margin-bottom: 0.8rem; font-weight: 700; font-size: 1.1rem; }
+        .footer-content p { color: var(--text-muted); font-size: 0.8rem; max-width: 550px; margin: 0 auto; line-height: 1.6; }
+        .copyright { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.03); font-size: 0.75rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo" onclick="window.location.reload()">SkillNav<span>Bharat</span></div>
+    <ul class="nav-menu" id="mainNav">
+        <li class="nav-link" onclick="switchPage('gapPage')">Gap Assessment</li>
+        <li class="nav-link" onclick="switchPage('strategyPage')">Market Strategies</li>
+        <li class="nav-link" onclick="switchPage('pathwayPage')">Training Pathways</li>
+        <li class="nav-link" onclick="switchPage('roadmapPage')">9-Month Roadmap</li>
+    </ul>
+</nav>
+
+<section id="heroPage">
+    <h1>Future-Proof Your <span style="color:var(--primary)">Career</span></h1>
+    <p>Predictive analysis of the 2026 Indian Job Market across all sectors.</p>
+    
+    <div class="input-group">
+        <div class="custom-dropdown" id="roleDropdown">
+            <div class="dropdown-trigger" id="roleTrigger">Select Career Track <span>▼</span></div>
+            <div class="dropdown-menu">
+                <div class="dropdown-label">Tech & Digital</div>
+                <div class="dropdown-item" data-value="software_eng">Full Stack Developer</div>
+                <div class="dropdown-item" data-value="data_analyst">Data Analyst</div>
+                <div class="dropdown-item" data-value="ai_ml">AI/ML Engineer</div>
+                <div class="dropdown-item" data-value="cyber_sec">Cybersecurity Specialist</div>
+                <div class="dropdown-label">Engineering & Infra</div>
+                <div class="dropdown-item" data-value="civil_eng">Civil Engineer</div>
+                <div class="dropdown-item" data-value="mech_eng">Mechanical Engineer</div>
+                <div class="dropdown-item" data-value="solar_tech">Solar PV Engineer</div>
+                <div class="dropdown-item" data-value="ev_tech">EV Technician</div>
+                <div class="dropdown-label">Science & Agri</div>
+                <div class="dropdown-item" data-value="pharma_qc">Pharma Quality Control</div>
+                <div class="dropdown-item" data-value="lab_tech">Clinical Lab Technician</div>
+                <div class="dropdown-item" data-value="agri_tech">Precision Farming Expert</div>
+                <div class="dropdown-item" data-value="nurse">Medical Professional</div>
+            </div>
+        </div>
+
+        <div class="custom-dropdown" id="regionDropdown">
+            <div class="dropdown-trigger" id="regionTrigger">Select Your Region <span>▼</span></div>
+            <div class="dropdown-menu">
+                <div class="dropdown-label">Major States</div>
+                <div class="dropdown-item" data-value="Maharashtra">Maharashtra</div>
+                <div class="dropdown-item" data-value="Karnataka">Karnataka</div>
+                <div class="dropdown-item" data-value="Delhi">Delhi NCR</div>
+                <div class="dropdown-item" data-value="TamilNadu">Tamil Nadu</div>
+                <div class="dropdown-item" data-value="Gujarat">Gujarat</div>
+                <div class="dropdown-item" data-value="UP">Uttar Pradesh</div>
+                <div class="dropdown-label">Full State List</div>
+                <div class="dropdown-item" data-value="Andhra">Andhra Pradesh</div>
+                <div class="dropdown-item" data-value="Bihar">Bihar</div>
+                <div class="dropdown-item" data-value="Kerala">Kerala</div>
+                <div class="dropdown-item" data-value="Rajasthan">Rajasthan</div>
+                <div class="dropdown-item" data-value="Telangana">Telangana</div>
+                <div class="dropdown-item" data-value="WestBengal">West Bengal</div>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="runAnalysis()">Launch Intelligence</button>
+    </div>
+</section>
+
+<section id="gapPage" class="page-content">
+    <div class="panel">
+        <h2>Industrial Gap Assessment</h2>
+        <p class="sub-text" style="margin-bottom: 2rem;">Real-time proficiency mapping against 2026 industrial benchmarks.</p>
+        <div style="height: 400px; width: 100%;"><canvas id="skillRadar"></canvas></div>
+    </div>
+</section>
+
+<section id="strategyPage" class="page-content">
+    <div class="panel">
+        <h2>Market Trajectory & Growth</h2>
+        <p id="trendSummary" class="sub-text" style="margin-bottom: 2rem;"></p>
+        <div style="height: 400px;"><canvas id="trendChart"></canvas></div>
+    </div>
+</section>
+
+<section id="pathwayPage" class="page-content">
+    <div class="panel">
+        <h2>Curated Training Pathways</h2>
+        <p class="sub-text" style="margin-bottom: 2.5rem;">Bridge your critical gaps with globally recognized certifications.</p>
+        <div id="courseList" class="course-grid"></div>
+    </div>
+</section>
+
+<section id="roadmapPage" class="page-content">
+    <div class="panel">
+        <h2>9-Month Strategic Roadmap</h2>
+        <div class="roadmap" id="roadmapContent"></div>
+    </div>
+</section>
+
+<footer>
+    <div class="footer-content">
+        <h4>SkillNav Bharat</h4>
+        <p>Empowering the Indian demographic dividend through AI-driven labor market intelligence.</p>
+    </div>
+    <div class="copyright">&copy; 2025 SkillNav Bharat.</div>
+</footer>
+
+<script>
+    let selectedRole = "";
+    let selectedRegion = "";
+    let radarChart = null, trendChart = null;
+
+    const roleDb = {
+        software_eng: { 
+            skills: ['Cloud Arch', 'Microservices', 'System Design', 'DevSecOps', 'Data Structures'], 
+            user: [45, 30, 20, 55, 70], market: [90, 85, 95, 80, 95], 
+            courses: [{ name: "IBM Full Stack Professional", provider: "Coursera" }], 
+            trends: [12, 22, 31, 38, 52],
+            phaseVideos: [
+                "https://www.youtube.com/embed/avdDEZCcluo", // Blueprint
+                "https://www.youtube.com/embed/pM45hWKia5o", // Cloud Arch
+                "https://www.youtube.com/embed/IG3fsRmujqA", // Sys Design
+                "https://www.youtube.com/embed/dQ6RNltrXro"  // LinkedIn Optimization
+            ]
+        },
+        data_analyst: {
+            skills: ['SQL', 'Python', 'PowerBI', 'Statistics', 'Data Ethics'],
+            user: [50, 40, 60, 30, 20], market: [95, 90, 85, 80, 75],
+            courses: [{ name: "Google Data Analytics", provider: "Coursera" }],
+            trends: [18, 25, 35, 48, 65],
+            phaseVideos: [
+                "https://www.youtube.com/embed/7S_zhMmesqU", // SQL Basics
+                "https://www.youtube.com/embed/T_H9fXIn0Hk", // PowerBI
+                "https://www.youtube.com/embed/ua-CiDNNj30", // Python
+                "https://www.youtube.com/embed/rG_N7xT6S90"  // DA Career Roadmap
+            ]
+        },
+        ai_ml: {
+            skills: ['PyTorch', 'NLP', 'Computer Vision', 'Model Ops', 'Linear Algebra'],
+            user: [20, 15, 10, 5, 50], market: [90, 85, 80, 85, 95],
+            courses: [{ name: "Machine Learning (Andrew Ng)", provider: "Coursera" }],
+            trends: [25, 40, 65, 90, 125],
+            phaseVideos: [
+                "https://www.youtube.com/embed/i_LwzRVP7bg", // ML Roadmap
+                "https://www.youtube.com/embed/JMUxmLdpTqA", // AI Math
+                "https://www.youtube.com/embed/cKxRvEZd3Mw", // PyTorch
+                "https://www.youtube.com/embed/9oF_9m6oPrc"  // AI Career
+            ]
+        },
+        civil_eng: { 
+            skills: ['BIM', 'Structural Math', 'Project Mgmt', 'Env Impact', 'Geotech'], 
+            user: [70, 80, 40, 30, 60], market: [95, 90, 85, 75, 85], 
+            courses: [{ name: "Autodesk Revit Design", provider: "Coursera" }], 
+            trends: [8, 15, 21, 28, 35],
+            phaseVideos: [
+                "https://www.youtube.com/embed/yFsh4HkC_9M", // Civil Future
+                "https://www.youtube.com/embed/chom9hiewXI", // Revit Project
+                "https://www.youtube.com/embed/Nd6U2KgHI6k", // Construction Mgmt
+                "https://www.youtube.com/embed/dQ6RNltrXro"  // Interview Optimization
+            ]
+        }
+    };
+
+    document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+        const trigger = dropdown.querySelector('.dropdown-trigger');
+        const items = dropdown.querySelectorAll('.dropdown-item');
+        items.forEach(item => { item.addEventListener('click', () => { trigger.innerHTML = `${item.innerText} <span>▼</span>`; if (dropdown.id === "roleDropdown") selectedRole = item.getAttribute('data-value'); if (dropdown.id === "regionDropdown") selectedRegion = item.getAttribute('data-value'); }); });
+    });
+
+    function switchPage(pageId) {
+        document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+        document.getElementById('heroPage').style.display = 'none';
+        document.getElementById(pageId).style.display = 'block';
+        document.querySelectorAll('.nav-link').forEach(link => { link.classList.remove('active'); if(link.getAttribute('onclick').includes(pageId)) link.classList.add('active'); });
+        window.scrollTo(0,0);
+    }
+
+    function runAnalysis() {
+        if(!selectedRole || !selectedRegion) { alert("Please select Career Track and Region."); return; }
+        document.getElementById('mainNav').classList.add('active');
+        const data = roleDb[selectedRole] || roleDb['software_eng'];
+        renderCharts(data);
+        
+        document.getElementById('courseList').innerHTML = data.courses.map(c => `<div class="course-card"><h4>${c.name}</h4><p style="color:var(--primary); font-weight:700;">${c.provider}</p></div>`).join('');
+        
+        document.getElementById('roadmapContent').innerHTML = `
+            <div class="roadmap-step"><span class="step-label">PHASE 1: Foundations</span>
+                <div class="roadmap-card"><h4>Core Strategic Alignment</h4>
+                    <p>Start with this blueprint to understand the modern requirements of the track.</p>
+                    <div class="video-container"><iframe src="${data.phaseVideos[0]}" frameborder="0" allowfullscreen></iframe></div>
+                </div>
+            </div>
+            <div class="roadmap-step"><span class="step-label">PHASE 2: Accreditation</span>
+                <div class="roadmap-card"><h4>Industry-Standard Learning</h4>
+                    <p>Deep dive into the specific tools valued in ${selectedRegion}.</p>
+                    <div class="video-container"><iframe src="${data.phaseVideos[1]}" frameborder="0" allowfullscreen></iframe></div>
+                </div>
+            </div>
+            <div class="roadmap-step"><span class="step-label">PHASE 3: Application</span>
+                <div class="roadmap-card"><h4>Industrial Implementation</h4>
+                    <p>Build real-world projects based on current market standards.</p>
+                    <div class="video-container"><iframe src="${data.phaseVideos[2]}" frameborder="0" allowfullscreen></iframe></div>
+                </div>
+            </div>
+            <div class="roadmap-step"><span class="step-label">PHASE 4: Placement</span>
+                <div class="roadmap-card"><h4>Career Integration</h4>
+                    <p>Prepare your final professional profile for Tier-1 recruiters in ${selectedRegion}.</p>
+                    <div class="video-container"><iframe src="${data.phaseVideos[3]}" frameborder="0" allowfullscreen></iframe></div>
+                </div>
+            </div>`;
+        switchPage('gapPage');
+    }
+
+    function renderCharts(data) {
+        if(radarChart) radarChart.destroy();
+        radarChart = new Chart(document.getElementById('skillRadar').getContext('2d'), { type: 'radar', data: { labels: data.skills, datasets: [{ label: 'You', data: data.user, borderColor: '#ff9933', backgroundColor: 'rgba(255, 153, 51, 0.1)', borderWidth: 2.5 }, { label: '2026 Goal', data: data.market, borderColor: '#6366f1', borderDash: [4,4], backgroundColor: 'transparent' }] }, options: { maintainAspectRatio: false, scales: { r: { grid: { color: 'rgba(255,255,255,0.08)' }, angleLines: { color: 'rgba(255,255,255,0.08)' }, pointLabels: { color: '#94a3b8' }, ticks: { display: false } } }, plugins: { legend: { labels: { color: '#fff' } } } } });
+        if(trendChart) trendChart.destroy();
+        trendChart = new Chart(document.getElementById('trendChart').getContext('2d'), { type: 'line', data: { labels: ['2022', '2023', '2024', '2025', '2026 (Est)'], datasets: [{ label: 'Demand', data: data.trends, borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)', fill: true, tension: 0.4 }] }, options: { maintainAspectRatio: false, scales: { x: { ticks: { color: '#64748b' } }, y: { ticks: { color: '#64748b' } } }, plugins: { legend: { display: false } } } });
+        document.getElementById('trendSummary').innerText = `Trajectory shows ${data.trends[4]}% demand intensity for 2026 based on market projections.`;
+    }
+</script>
+</body>
+</html>
