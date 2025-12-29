@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,70 +9,103 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <nav>
-        <div class="logo" id="logoBtn">SkillNav<span>Bharat</span></div>
+        <div class="logo" onclick="window.location.reload()">SkillNav<span>Bharat</span></div>
         <ul class="nav-menu" id="mainNav">
-            <li class="nav-link" data-page="gapPage">Gap Assessment</li>
-            <li class="nav-link" data-page="strategyPage">Market Strategies</li>
-            <li class="nav-link" data-page="pathwayPage">Training Pathways</li>
-            <li class="nav-link" data-page="roadmapPage">9-Month Roadmap</li>
+            <li class="nav-link" onclick="switchPage('gapPage')">Gap Assessment</li>
+            <li class="nav-link" onclick="switchPage('strategyPage')">Market Strategies</li>
+            <li class="nav-link" onclick="switchPage('pathwayPage')">Training Pathways</li>
+            <li class="nav-link" onclick="switchPage('roadmapPage')">9-Month Roadmap</li>
+            <li id="profileLink" class="nav-link" onclick="switchPage('profilePage')" style="display: none;">My Profile</li>
         </ul>
+        <button class="user-auth-btn" id="authBtn" onclick="toggleAuthModal()">Login</button>
     </nav>
 
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Welcome Back</h2>
+            <div class="auth-form">
+                <input type="email" id="userEmail" placeholder="Email Address">
+                <input type="password" id="userPass" placeholder="Password">
+                <button class="btn-primary" style="width: 100%; margin-top: 1rem;" onclick="handleAuth()">Continue</button>
+            </div>
+            <p id="toggleText" style="margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); cursor: pointer;" onclick="toggleAuthMode()">Don't have an account? Sign Up</p>
+        </div>
+    </div>
+
     <section id="heroPage">
-        <h1>Future-Proof Your <span class="accent">Career</span></h1>
+        <h1>Future-Proof Your <span style="color:var(--primary)">Career</span></h1>
         <p>Predictive analysis of the 2026 Indian Job Market across all sectors.</p>
 
         <div class="input-group">
             <div class="custom-dropdown" id="roleDropdown">
-                <div class="dropdown-trigger">Select Career Track <span>▼</span></div>
+                <div class="dropdown-trigger" id="roleTrigger">Select Career Track <span>▼</span></div>
                 <div class="dropdown-menu">
                     <div class="dropdown-label">Tech & Digital</div>
                     <div class="dropdown-item" data-value="software_eng">Full Stack Developer</div>
                     <div class="dropdown-item" data-value="data_analyst">Data Analyst</div>
                     <div class="dropdown-item" data-value="ai_ml">AI/ML Engineer</div>
+                    <div class="dropdown-item" data-value="cyber_sec">Cybersecurity Specialist</div>
                     <div class="dropdown-label">Engineering & Infra</div>
                     <div class="dropdown-item" data-value="civil_eng">Civil Engineer</div>
+                    <div class="dropdown-item" data-value="mech_eng">Mechanical Engineer</div>
                     <div class="dropdown-item" data-value="solar_tech">Solar PV Engineer</div>
+                    <div class="dropdown-item" data-value="ev_tech">EV Technician</div>
+                    <div class="dropdown-label">Science & Agri</div>
+                    <div class="dropdown-item" data-value="pharma_qc">Pharma Quality Control</div>
+                    <div class="dropdown-item" data-value="lab_tech">Clinical Lab Technician</div>
+                    <div class="dropdown-item" data-value="agri_tech">Precision Farming Expert</div>
+                    <div class="dropdown-item" data-value="nurse">Medical Professional</div>
                 </div>
             </div>
 
             <div class="custom-dropdown" id="regionDropdown">
-                <div class="dropdown-trigger">Select Your Region <span>▼</span></div>
+                <div class="dropdown-trigger" id="regionTrigger">Select Your Region <span>▼</span></div>
                 <div class="dropdown-menu">
+                    <div class="dropdown-label">Major States</div>
                     <div class="dropdown-item" data-value="Maharashtra">Maharashtra</div>
                     <div class="dropdown-item" data-value="Karnataka">Karnataka</div>
                     <div class="dropdown-item" data-value="Delhi">Delhi NCR</div>
                     <div class="dropdown-item" data-value="TamilNadu">Tamil Nadu</div>
                     <div class="dropdown-item" data-value="Gujarat">Gujarat</div>
+                    <div class="dropdown-item" data-value="UP">Uttar Pradesh</div>
+                    <div class="dropdown-label">Full State List</div>
+                    <div class="dropdown-item" data-value="Andhra">Andhra Pradesh</div>
+                    <div class="dropdown-item" data-value="Bihar">Bihar</div>
+                    <div class="dropdown-item" data-value="Kerala">Kerala</div>
+                    <div class="dropdown-item" data-value="Rajasthan">Rajasthan</div>
+                    <div class="dropdown-item" data-value="Telangana">Telangana</div>
+                    <div class="dropdown-item" data-value="WestBengal">West Bengal</div>
                 </div>
             </div>
 
-            <button class="btn-primary" id="launchBtn">Launch Intelligence</button>
+            <button class="btn btn-primary" onclick="runAnalysis()">Launch Intelligence</button>
         </div>
     </section>
 
     <section id="gapPage" class="page-content">
         <div class="panel">
             <h2>Industrial Gap Assessment</h2>
-            <p class="sub-text">Real-time proficiency mapping against 2026 industrial benchmarks.</p>
-            <div class="chart-wrapper"><canvas id="skillRadar"></canvas></div>
+            <p class="sub-text" style="margin-bottom: 2rem;">Real-time proficiency mapping against 2026 industrial benchmarks.</p>
+            <div style="height: 400px; width: 100%;"><canvas id="skillRadar"></canvas></div>
         </div>
     </section>
 
     <section id="strategyPage" class="page-content">
         <div class="panel">
             <h2>Market Trajectory & Growth</h2>
-            <p id="trendSummary" class="sub-text"></p>
-            <div class="chart-wrapper"><canvas id="trendChart"></canvas></div>
+            <p id="trendSummary" class="sub-text" style="margin-bottom: 2rem;"></p>
+            <div style="height: 400px;"><canvas id="trendChart"></canvas></div>
         </div>
     </section>
 
     <section id="pathwayPage" class="page-content">
         <div class="panel">
             <h2>Curated Training Pathways</h2>
+            <p class="sub-text" style="margin-bottom: 2.5rem;">Bridge your critical gaps with globally recognized certifications.</p>
             <div id="courseList" class="course-grid"></div>
         </div>
     </section>
@@ -80,6 +114,29 @@
         <div class="panel">
             <h2>9-Month Strategic Roadmap</h2>
             <div class="roadmap" id="roadmapContent"></div>
+        </div>
+    </section>
+
+    <section id="profilePage" class="page-content">
+        <div class="panel">
+            <div class="profile-header">
+                <div class="profile-avatar" id="userInitial">U</div>
+                <div>
+                    <h2 style="margin:0" id="userNameDisplay">User Profile</h2>
+                    <p class="sub-text" id="userEmailDisplay">user@skillnav.in</p>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item"><h3>84%</h3><p>Skill Readiness</p></div>
+                <div class="stat-item"><h3>3</h3><p>Certifications</p></div>
+                <div class="stat-item"><h3>Phase 2</h3><p>Current Roadmap</p></div>
+            </div>
+            <h3 style="margin-top:2.5rem; color:var(--white)">Saved Career Goal</h3>
+            <div class="roadmap-card">
+                <h4 id="savedGoal">Not set</h4>
+                <p id="savedLocation">Set a track to see your trajectory.</p>
+            </div>
+            <button class="btn-primary" style="margin-top: 2rem; background: #ef4444;" onclick="logout()">Sign Out</button>
         </div>
     </section>
 
@@ -93,4 +150,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>

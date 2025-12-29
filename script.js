@@ -1,4 +1,9 @@
-// Database of Career Paths
+let selectedRole = "";
+let selectedRegion = "";
+let radarChart = null, trendChart = null;
+let isLoggedIn = false;
+let isSignUpMode = false;
+
 const roleDb = {
     software_eng: {
         skills: ['Cloud Arch', 'Microservices', 'System Design', 'DevSecOps', 'Data Structures'],
@@ -6,11 +11,11 @@ const roleDb = {
         market: [90, 85, 95, 80, 95],
         courses: [{ name: "IBM Full Stack Professional", provider: "Coursera" }],
         trends: [12, 22, 31, 38, 52],
-        videos: [
-            "https://www.youtube.com/embed/avdDEZCcluo",
-            "https://www.youtube.com/embed/pM45hWKia5o",
-            "https://www.youtube.com/embed/IG3fsRmujqA",
-            "https://www.youtube.com/embed/dQ6RNltrXro"
+        phaseVideos: [
+            "https://www.youtube.com/embed/avdDEZCcluo", 
+            "https://www.youtube.com/embed/pM45hWKia5o", 
+            "https://www.youtube.com/embed/IG3fsRmujqA", 
+            "https://www.youtube.com/embed/dQ6RNltrXro"  
         ]
     },
     data_analyst: {
@@ -19,11 +24,11 @@ const roleDb = {
         market: [95, 90, 85, 80, 75],
         courses: [{ name: "Google Data Analytics", provider: "Coursera" }],
         trends: [18, 25, 35, 48, 65],
-        videos: [
-            "https://www.youtube.com/embed/7S_zhMmesqU",
-            "https://www.youtube.com/embed/T_H9fXIn0Hk",
-            "https://www.youtube.com/embed/ua-CiDNNj30",
-            "https://www.youtube.com/embed/rG_N7xT6S90"
+        phaseVideos: [
+            "https://www.youtube.com/embed/7S_zhMmesqU", 
+            "https://www.youtube.com/embed/T_H9fXIn0Hk", 
+            "https://www.youtube.com/embed/ua-CiDNNj30", 
+            "https://www.youtube.com/embed/rG_N7xT6S90"  
         ]
     },
     ai_ml: {
@@ -32,118 +37,175 @@ const roleDb = {
         market: [90, 85, 80, 85, 95],
         courses: [{ name: "Machine Learning (Andrew Ng)", provider: "Coursera" }],
         trends: [25, 40, 65, 90, 125],
-        videos: ["https://www.youtube.com/embed/i_LwzRVP7bg", "https://www.youtube.com/embed/JMUxmLdpTqA", "https://www.youtube.com/embed/cKxRvEZd3Mw", "https://www.youtube.com/embed/9oF_9m6oPrc"]
+        phaseVideos: [
+            "https://www.youtube.com/embed/i_LwzRVP7bg", 
+            "https://www.youtube.com/embed/JMUxmLdpTqA", 
+            "https://www.youtube.com/embed/cKxRvEZd3Mw", 
+            "https://www.youtube.com/embed/9oF_9m6oPrc"  
+        ]
+    },
+    civil_eng: {
+        skills: ['BIM', 'Structural Math', 'Project Mgmt', 'Env Impact', 'Geotech'],
+        user: [70, 80, 40, 30, 60],
+        market: [95, 90, 85, 75, 85],
+        courses: [{ name: "Autodesk Revit Design", provider: "Coursera" }],
+        trends: [8, 15, 21, 28, 35],
+        phaseVideos: [
+            "https://www.youtube.com/embed/yFsh4HkC_9M", 
+            "https://www.youtube.com/embed/chom9hiewXI", 
+            "https://www.youtube.com/embed/Nd6U2KgHI6k", 
+            "https://www.youtube.com/embed/dQ6RNltrXro"  
+        ]
     }
 };
 
-let selectedRole = "";
-let selectedRegion = "";
-let radarChart = null;
-let trendChart = null;
-
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Dropdown Selection Logic
-    document.querySelectorAll('.dropdown-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-            const dropdown = e.target.closest('.custom-dropdown');
-            const trigger = dropdown.querySelector('.dropdown-trigger');
-            const val = e.target.getAttribute('data-value');
-            
-            trigger.innerHTML = `${e.target.innerText} <span>▼</span>`;
-            
-            if (dropdown.id === "roleDropdown") selectedRole = val;
-            if (dropdown.id === "regionDropdown") selectedRegion = val;
-        });
-    });
-
-    // 2. Launch Button Logic
-    const launchBtn = document.getElementById('launchBtn');
-    if(launchBtn) {
-        launchBtn.addEventListener('click', runAnalysis);
-    }
-
-    // 3. Navigation
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', (e) => {
-            switchPage(e.target.getAttribute('data-page'));
+// UI Event Listeners
+document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+    const trigger = dropdown.querySelector('.dropdown-trigger');
+    const items = dropdown.querySelectorAll('.dropdown-item');
+    items.forEach(item => {
+        item.addEventListener('click', () => {
+            trigger.innerHTML = `${item.innerText} <span>▼</span>`;
+            if (dropdown.id === "roleDropdown") selectedRole = item.getAttribute('data-value');
+            if (dropdown.id === "regionDropdown") selectedRegion = item.getAttribute('data-value');
         });
     });
 });
 
+// Auth Logic
+function toggleAuthModal() {
+    const modal = document.getElementById('authModal');
+    modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('authModal');
+    if (event.target == modal) modal.style.display = "none";
+}
+
+function toggleAuthMode() {
+    isSignUpMode = !isSignUpMode;
+    document.getElementById('modalTitle').innerText = isSignUpMode ? "Create Account" : "Welcome Back";
+    document.getElementById('toggleText').innerText = isSignUpMode ? "Already have an account? Login" : "Don't have an account? Sign Up";
+}
+
+function handleAuth() {
+    const email = document.getElementById('userEmail').value;
+    if (!email) { alert("Please enter email"); return; }
+    
+    isLoggedIn = true;
+    document.getElementById('authBtn').innerText = "Logout";
+    document.getElementById('authBtn').setAttribute('onclick', 'logout()');
+    document.getElementById('profileLink').style.display = 'block';
+    document.getElementById('userEmailDisplay').innerText = email;
+    document.getElementById('userNameDisplay').innerText = email.split('@')[0];
+    document.getElementById('userInitial').innerText = email[0].toUpperCase();
+    
+    toggleAuthModal();
+    alert(isSignUpMode ? "Account created successfully!" : "Logged in successfully!");
+}
+
+function logout() {
+    isLoggedIn = false;
+    document.getElementById('authBtn').innerText = "Login";
+    document.getElementById('authBtn').setAttribute('onclick', 'toggleAuthModal()');
+    document.getElementById('profileLink').style.display = 'none';
+    location.reload();
+}
+
+function switchPage(pageId) {
+    document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+    document.getElementById('heroPage').style.display = 'none';
+    document.getElementById(pageId).style.display = 'block';
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('onclick').includes(pageId)) link.classList.add('active');
+    });
+    window.scrollTo(0, 0);
+}
+
 function runAnalysis() {
     if (!selectedRole || !selectedRegion) {
-        alert("Please select both a Career Track and a Region.");
+        alert("Please select Career Track and Region.");
         return;
     }
-    
-    const data = roleDb[selectedRole] || roleDb['software_eng'];
     document.getElementById('mainNav').classList.add('active');
+    const data = roleDb[selectedRole] || roleDb['software_eng'];
     
-    // Switch page first so the canvas is visible (Chart.js needs visible canvas to calculate size)
+    // Update Profile Info
+    document.getElementById('savedGoal').innerText = document.getElementById('roleTrigger').innerText.replace('▼', '');
+    document.getElementById('savedLocation').innerText = `Target Region: ${document.getElementById('regionTrigger').innerText.replace('▼', '')}`;
+
+    renderCharts(data);
+
+    document.getElementById('courseList').innerHTML = data.courses
+        .map(c => `
+            <div class="course-card">
+                <h4>${c.name}</h4>
+                <p style="color:var(--primary); font-weight:700;">${c.provider}</p>
+            </div>
+        `).join('');
+
+    document.getElementById('roadmapContent').innerHTML = `
+        <div class="roadmap-step"><span class="step-label">PHASE 1: Foundations</span>
+            <div class="roadmap-card"><h4>Core Strategic Alignment</h4>
+                <p>Start with this blueprint to understand the modern requirements of the track.</p>
+                <div class="video-container"><iframe src="${data.phaseVideos[0]}" frameborder="0" allowfullscreen></iframe></div>
+            </div>
+        </div>
+        <div class="roadmap-step"><span class="step-label">PHASE 2: Accreditation</span>
+            <div class="roadmap-card"><h4>Industry-Standard Learning</h4>
+                <p>Deep dive into the specific tools valued in ${selectedRegion}.</p>
+                <div class="video-container"><iframe src="${data.phaseVideos[1]}" frameborder="0" allowfullscreen></iframe></div>
+            </div>
+        </div>
+        <div class="roadmap-step"><span class="step-label">PHASE 3: Application</span>
+            <div class="roadmap-card"><h4>Industrial Implementation</h4>
+                <p>Build real-world projects based on current market standards.</p>
+                <div class="video-container"><iframe src="${data.phaseVideos[2]}" frameborder="0" allowfullscreen></iframe></div>
+            </div>
+        </div>
+        <div class="roadmap-step"><span class="step-label">PHASE 4: Placement</span>
+            <div class="roadmap-card"><h4>Career Integration</h4>
+                <p>Prepare your final professional profile for Tier-1 recruiters in ${selectedRegion}.</p>
+                <div class="video-container"><iframe src="${data.phaseVideos[3]}" frameborder="0" allowfullscreen></iframe></div>
+            </div>
+        </div>`;
     switchPage('gapPage');
-    
-    // Wrap in timeout to ensure DOM is rendered before drawing
-    setTimeout(() => {
-        renderCharts(data);
-        updateCourses(data);
-        updateRoadmap(data);
-    }, 100);
 }
 
 function renderCharts(data) {
-    const radarCtx = document.getElementById('skillRadar').getContext('2d');
-    const trendCtx = document.getElementById('trendChart').getContext('2d');
-
     if (radarChart) radarChart.destroy();
-    if (trendChart) trendChart.destroy();
-
-    // Radar Chart Configuration
-    radarChart = new Chart(radarCtx, {
+    radarChart = new Chart(document.getElementById('skillRadar').getContext('2d'), {
         type: 'radar',
         data: {
             labels: data.skills,
             datasets: [
-                { 
-                    label: 'You', 
-                    data: data.user, 
-                    borderColor: '#ff9933', 
-                    backgroundColor: 'rgba(255, 153, 51, 0.2)',
-                    pointBackgroundColor: '#ff9933'
-                },
-                { 
-                    label: '2026 Goal', 
-                    data: data.market, 
-                    borderColor: '#6366f1', 
-                    borderDash: [5, 5],
-                    backgroundColor: 'transparent',
-                    pointBackgroundColor: '#6366f1'
-                }
+                { label: 'You', data: data.user, borderColor: '#ff9933', backgroundColor: 'rgba(255, 153, 51, 0.1)', borderWidth: 2.5 },
+                { label: '2026 Goal', data: data.market, borderColor: '#6366f1', borderDash: [4, 4], backgroundColor: 'transparent' }
             ]
         },
         options: {
-            responsive: true,
             maintainAspectRatio: false,
             scales: {
                 r: {
-                    angleLines: { color: 'rgba(255,255,255,0.1)' },
-                    grid: { color: 'rgba(255,255,255,0.1)' },
-                    pointLabels: { color: '#94a3b8', font: { size: 12 } },
+                    grid: { color: 'rgba(255,255,255,0.08)' },
+                    angleLines: { color: 'rgba(255,255,255,0.08)' },
+                    pointLabels: { color: '#94a3b8' },
                     ticks: { display: false }
                 }
             },
-            plugins: {
-                legend: { labels: { color: '#fff' } }
-            }
+            plugins: { legend: { labels: { color: '#fff' } } }
         }
     });
 
-    // Trend Chart Configuration
-    trendChart = new Chart(trendCtx, {
+    if (trendChart) trendChart.destroy();
+    trendChart = new Chart(document.getElementById('trendChart').getContext('2d'), {
         type: 'line',
         data: {
-            labels: ['2022', '2023', '2024', '2025', '2026'],
+            labels: ['2022', '2023', '2024', '2025', '2026 (Est)'],
             datasets: [{
-                label: 'Demand Intensity',
+                label: 'Demand',
                 data: data.trends,
                 borderColor: '#22c55e',
                 backgroundColor: 'rgba(34, 197, 94, 0.1)',
@@ -152,55 +214,13 @@ function renderCharts(data) {
             }]
         },
         options: {
-            responsive: true,
             maintainAspectRatio: false,
             scales: {
-                x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
-                y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                x: { ticks: { color: '#64748b' } },
+                y: { ticks: { color: '#64748b' } }
             },
-            plugins: {
-                legend: { display: false }
-            }
+            plugins: { legend: { display: false } }
         }
     });
-
-    document.getElementById('trendSummary').innerText = `Trajectory shows ${data.trends[4]}% demand intensity for 2026 in ${selectedRegion}.`;
-}
-
-function switchPage(pageId) {
-    document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
-    document.getElementById('heroPage').style.display = 'none';
-    
-    const targetPage = document.getElementById(pageId);
-    if(targetPage) targetPage.style.display = 'block';
-    
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('data-page') === pageId) link.classList.add('active');
-    });
-}
-
-function updateCourses(data) {
-    const list = document.getElementById('courseList');
-    list.innerHTML = data.courses.map(c => `
-        <div class="course-card">
-            <h4>${c.name}</h4>
-            <p style="color:#ff9933; font-weight:bold;">${c.provider}</p>
-        </div>
-    `).join('');
-}
-
-function updateRoadmap(data) {
-    const content = document.getElementById('roadmapContent');
-    const phases = ["Foundations", "Accreditation", "Application", "Placement"];
-    content.innerHTML = phases.map((p, i) => `
-        <div class="roadmap-step">
-            <div class="roadmap-card">
-                <h3>PHASE ${i+1}: ${p}</h3>
-                <div class="video-container">
-                    <iframe src="${data.videos[i]}" frameborder="0" allowfullscreen></iframe>
-                </div>
-            </div>
-        </div>
-    `).join('');
+    document.getElementById('trendSummary').innerText = `Trajectory shows ${data.trends[4]}% demand intensity for 2026 based on market projections.`;
 }
